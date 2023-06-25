@@ -1,36 +1,46 @@
+@Library('my-library') _  
 pipeline {
      agent any
     parameters {
-        booleanParam(name:'project', defaultValue: true, description:'this paramater help you to know project name')
-        choice(name: 'namespace', choices:['function','div','variable'], description: '' ) 
+        booleanParam(name:'test', defaultValue: true, description:'this paramater help you to know project name')
+        choice(name: 'namespace', choices:['dev','prod','stage'], description: '' ) 
     }
 
     stages {
-        stage('check') {
+        stage('build') {
             steps {
-                echo "checking your code"
-                echo "${params.namespace}"
-               
+                building()
             }
         }
 
         stage('test') {
             when {
                 expression{
-                    params.project == true 
+                    params.test== true 
                 }
             }
             steps {
-                echo "testing your app" 
+                testing()
             }
         }
         
-        stage('deployment') {  
+        stage('deploy') {  
             steps {
-                echo "your code is deployed right now"
-                echo "this build number $BUILD_NUMBER"
+               deploying()
             }
         }    
     }
 
+     post {
+        always { 
+            echo 'job was triggered'
+        }
+        success {
+            echo 'your app is deployed successfully'
+        }
+        failure {
+            echo 'dyploying failure'
+        }
+
+}
 }
